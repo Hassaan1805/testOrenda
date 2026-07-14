@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Orenda — Your thoughts, gently understood." />
+  <title>Orenda — AI Journaling</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <div class="container nav-inner">
+      <a class="logo" href="./index.html" aria-label="Orenda Home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span style="font-size:1.15rem">Orenda</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-link" href="./index.html" aria-current="page">Home</a>
+        <a class="nav-link" href="./journal.html">Journal</a>
+        <a class="nav-link" href="./history.html">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+
+      <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobilePanel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="container mobile-panel" id="mobilePanel" aria-label="Mobile navigation">
+      <nav class="mobile-links" aria-label="Mobile primary navigation">
+        <a class="nav-link" href="./index.html" aria-current="page">Home</a>
+        <a class="nav-link" href="./journal.html">Journal</a>
+        <a class="nav-link" href="./history.html">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page" role="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1 class="h1 reveal" style="margin-bottom:12px">Orenda</h1>
+          <p class="p reveal" style="font-weight:600;color:var(--primary);margin-bottom:10px">Your thoughts, gently understood.</p>
+          <p class="p reveal" style="font-size:1.02rem;max-width:56ch">
+            Orenda is an AI-powered journaling companion that helps you reflect on your thoughts with kindness, clarity, and gentle guidance.
+          </p>
+
+          <div class="hero-actions reveal">
+            <a class="btn" href="./journal.html" role="button" aria-label="Start journaling">Start Journaling</a>
+            <a class="btn btn-ghost" href="./about.html" role="button" aria-label="Learn more">Learn More</a>
+          </div>
+        </div>
+
+        <div class="illus reveal" aria-hidden="true">
+          <div class="leaf"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="feature-grid">
+          <article class="card card-pad card-hover reveal" aria-label="AI Reflection feature">
+            <div style="font-size:1.3rem" aria-hidden="true">🌿</div>
+            <h2 class="h2" style="font-size:1.2rem;margin-top:10px">AI Reflection</h2>
+            <p class="p" style="margin-top:10px">Kind, structured reflections that help you understand what’s really beneath the words.</p>
+          </article>
+
+          <article class="card card-pad card-hover reveal" aria-label="Private Journal feature">
+            <div style="font-size:1.3rem" aria-hidden="true">📝</div>
+            <h2 class="h2" style="font-size:1.2rem;margin-top:10px">Private Journal</h2>
+            <p class="p" style="margin-top:10px">A calming space for honest writing—simple controls, thoughtful prompts, gentle pacing.</p>
+          </article>
+
+          <article class="card card-pad card-hover reveal" aria-label="Daily Growth feature">
+            <div style="font-size:1.3rem" aria-hidden="true">🌸</div>
+            <h2 class="h2" style="font-size:1.2rem;margin-top:10px">Daily Growth</h2>
+            <p class="p" style="margin-top:10px">Small steps toward clarity—habits that feel supportive, not demanding.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+      <div class="container footer-grid">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="logo-mark" aria-hidden="true" style="width:28px;height:28px;border-radius:10px"></span>
+          <strong style="color:var(--text)">Orenda</strong>
+        </div>
+        <div>
+          <span>Built with ❤️ using FastAPI and Claude AI</span>
+          <span aria-hidden="true"> · </span>
+          <a href="#" aria-label="GitHub link placeholder">GitHub</a>
+        </div>
+      </div>
+      <div class="container" style="margin-top:14px">© <span id="year"></span> Orenda. All rights reserved.</div>
+    </footer>
+  </main>
+
+  <script>
+    // Small footer year helper (kept inline to avoid extra complexity across pages)
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="./script.js" defer></script>
+</body>
+</html>
+

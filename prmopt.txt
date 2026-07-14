@@ -1,0 +1,472 @@
+You are a senior frontend developer and UI/UX designer.
+
+Build the complete frontend for my AI journaling web application called "Orenda".
+
+Theme:
+Minimal, calming, elegant, nature-inspired, modern.
+
+Tagline:
+"Your thoughts, gently understood."
+
+The design should feel like:
+• Notion
+• Headspace
+• Apple Human Interface
+• Calm App
+• Soft shadows
+• Rounded corners
+• Plenty of whitespace
+• Beautiful typography
+• Smooth animations
+
+Use only:
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+Do NOT use React, Vue, Bootstrap, Tailwind, jQuery, or any frontend framework.
+
+Folder structure:
+
+frontend/
+│── index.html
+│── journal.html
+│── history.html
+│── about.html
+│── style.css
+│── script.js
+│── assets/
+
+Use a consistent color palette.
+
+Colors:
+
+Background:
+#F8F9F5
+
+Primary:
+#6E8B74
+
+Secondary:
+#A7C4A0
+
+Accent:
+#D8E9D3
+
+Cards:
+#FFFFFF
+
+Text:
+#2F3E34
+
+Muted Text:
+#6B7280
+
+Buttons:
+#6E8B74
+
+Button Hover:
+#58715D
+
+Font:
+Use Google Fonts:
+"Poppins"
+
+General Design Requirements
+
+The website must be fully responsive.
+
+Maximum content width:
+1200px
+
+Rounded corners:
+16px
+
+Soft shadows
+
+Hover animations
+
+Smooth page transitions
+
+Fade-in animations
+
+No harsh colors.
+
+Spacing should be generous.
+
+The website should feel peaceful.
+
+---------------------------------------
+
+PAGE 1
+index.html
+
+Hero section
+
+Include:
+
+Large Orenda logo text
+
+Tagline
+
+Short description:
+
+"Orenda is an AI-powered journaling companion that helps you reflect on your thoughts with kindness, clarity, and gentle guidance."
+
+Large illustration placeholder using CSS (do not use copyrighted images).
+
+Buttons:
+
+Start Journaling
+
+Learn More
+
+Below hero:
+
+Three feature cards:
+
+🌿 AI Reflection
+
+📝 Private Journal
+
+🌸 Daily Growth
+
+Footer
+
+---------------------------------------
+
+PAGE 2
+journal.html
+
+Large page title:
+
+Today's Journal
+
+Show today's date automatically using JavaScript.
+
+Mood selector.
+
+Use six emoji buttons:
+
+😀 Happy
+
+🙂 Calm
+
+😐 Neutral
+
+😔 Sad
+
+😟 Anxious
+
+😡 Frustrated
+
+Selected mood should highlight.
+
+Daily Prompt section.
+
+Display one random journaling prompt each time the page loads.
+
+Include at least 20 prompts in JavaScript.
+
+Examples:
+
+"What made you smile today?"
+
+"What challenged you?"
+
+"What are you grateful for?"
+
+"What is on your mind?"
+
+Large journal textarea.
+
+Minimum height:
+350px
+
+Live word counter.
+
+Live character counter.
+
+Privacy notice below textarea:
+
+"Your journal entry is sent securely to Claude to generate a reflection. Please avoid entering highly sensitive personal information."
+
+Buttons:
+
+Reflect
+
+Clear
+
+Reflect button should currently simulate navigation to reflection section.
+
+Do NOT implement backend calls.
+
+---------------------------------------
+
+Reflection Section
+
+On the same page below the journal.
+
+Initially hidden.
+
+When clicking Reflect:
+
+Show the reflection area with smooth animation.
+
+Display six beautiful cards.
+
+Card 1
+
+Summary
+
+Lorem ipsum placeholder.
+
+Card 2
+
+Emotions
+
+Three emotion chips.
+
+Example:
+
+Hopeful
+
+Curious
+
+Tired
+
+Card 3
+
+Reflection Questions
+
+Two numbered questions.
+
+Card 4
+
+Encouragement
+
+Supportive paragraph.
+
+Card 5
+
+Small Goal
+
+One actionable goal.
+
+Card 6
+
+Today's Bloom
+
+Short inspirational sentence.
+
+Use placeholder content only.
+
+Structure should make future FastAPI integration easy.
+
+---------------------------------------
+
+PAGE 3
+history.html
+
+Title:
+
+Journal History
+
+Search bar.
+
+Filter dropdown:
+
+All
+
+Happy
+
+Calm
+
+Neutral
+
+Sad
+
+Anxious
+
+Frustrated
+
+Display multiple history cards.
+
+Each card contains:
+
+Date
+
+Mood
+
+First few lines
+
+AI Summary
+
+Read More button
+
+Use dummy data.
+
+Cards should have hover effects.
+
+---------------------------------------
+
+PAGE 4
+about.html
+
+Sections:
+
+What is Orenda?
+
+How it Works
+
+Privacy
+
+Mental Health Disclaimer
+
+Tech Stack
+
+Architecture Overview
+
+Use elegant cards.
+
+Include simple timeline:
+
+Journal
+
+↓
+
+AI Reflection
+
+↓
+
+Growth
+
+---------------------------------------
+
+Navigation
+
+Sticky navbar.
+
+Logo left.
+
+Links:
+
+Home
+
+Journal
+
+History
+
+About
+
+Current page highlighted.
+
+Mobile hamburger menu.
+
+---------------------------------------
+
+Footer
+
+Include:
+
+Orenda
+
+Built with ❤️ using FastAPI and Claude AI
+
+GitHub placeholder link
+
+Copyright
+
+---------------------------------------
+
+Animations
+
+Fade-in
+
+Cards slide upward
+
+Button hover
+
+Smooth scrolling
+
+Gentle transitions
+
+---------------------------------------
+
+Accessibility
+
+Semantic HTML
+
+ARIA labels
+
+Keyboard navigation
+
+Visible focus styles
+
+Proper contrast
+
+Responsive on:
+
+Desktop
+
+Tablet
+
+Mobile
+
+---------------------------------------
+
+JavaScript
+
+script.js should contain:
+
+Today's date
+
+Mood selection
+
+Random prompts
+
+Word counter
+
+Character counter
+
+Reflection show/hide
+
+Navbar toggle
+
+Smooth scrolling
+
+No backend calls.
+
+Keep the code modular and well-commented.
+
+---------------------------------------
+
+CSS
+
+Use CSS variables.
+
+Organize into sections:
+
+Root colors
+
+Typography
+
+Layout
+
+Buttons
+
+Cards
+
+Forms
+
+Navbar
+
+Footer
+
+Animations
+
+Responsive media queries
+
+The code should be clean, production-ready, and easy to connect later with FastAPI endpoints.
+
+Generate all HTML, CSS, and JavaScript files completely.

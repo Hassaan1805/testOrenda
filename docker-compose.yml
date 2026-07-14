@@ -1,0 +1,18 @@
+services:
+  orenda:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    environment:
+      ORENDA_DB_PATH: /data/orenda.sqlite3
+      CORS_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+    volumes:
+      - orenda_data:/data
+    restart: unless-stopped
+
+volumes:
+  orenda_data:

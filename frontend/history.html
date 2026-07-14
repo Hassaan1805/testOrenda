@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Orenda — Journal History" />
+  <title>Orenda — History</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <div class="container nav-inner">
+      <a class="logo" href="./index.html" aria-label="Orenda Home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span style="font-size:1.15rem">Orenda</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-link" href="./index.html">Home</a>
+        <a class="nav-link" href="./journal.html">Journal</a>
+        <a class="nav-link" href="./history.html" aria-current="page">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+
+      <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobilePanel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="container mobile-panel" id="mobilePanel" aria-label="Mobile navigation">
+      <nav class="mobile-links" aria-label="Mobile primary navigation">
+        <a class="nav-link" href="./index.html">Home</a>
+        <a class="nav-link" href="./journal.html">Journal</a>
+        <a class="nav-link" href="./history.html" aria-current="page">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page" role="main">
+    <section class="section">
+      <div class="container">
+        <div class="page-title">
+          <div>
+            <h1 class="h2 reveal" style="font-size:2rem">Journal History</h1>
+            <p class="p reveal" style="margin-top:8px">Search and filter your past journal entries.</p>
+          </div>
+        </div>
+
+        <div class="topbar reveal">
+          <label class="sr-only" for="historySearch" style="position:absolute;left:-9999px">Search</label>
+          <input id="historySearch" class="input" type="search" placeholder="Search your thoughts…" aria-label="Search journal history" />
+
+          <label class="sr-only" for="moodFilter" style="position:absolute;left:-9999px">Filter by mood</label>
+          <select id="moodFilter" class="select" aria-label="Filter by mood">
+            <option value="All">All</option>
+            <option value="Happy">Happy</option>
+            <option value="Calm">Calm</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Sad">Sad</option>
+            <option value="Anxious">Anxious</option>
+            <option value="Frustrated">Frustrated</option>
+          </select>
+        </div>
+
+        <div id="historyGrid" class="history-grid" role="list" aria-label="Journal history entries">
+          <!-- Filled by JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+      <div class="container footer-grid">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="logo-mark" aria-hidden="true" style="width:28px;height:28px;border-radius:10px"></span>
+          <strong style="color:var(--text)">Orenda</strong>
+        </div>
+        <div>
+          <span>Built with ❤️ using FastAPI and Claude AI</span>
+          <span aria-hidden="true"> · </span>
+          <a href="#" aria-label="GitHub link placeholder">GitHub</a>
+        </div>
+      </div>
+      <div class="container" style="margin-top:14px">© <span id="year"></span> Orenda. All rights reserved.</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="./script.js" defer></script>
+</body>
+</html>
+

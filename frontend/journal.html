@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Orenda — Today's Journal" />
+  <title>Orenda — Journal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <div class="container nav-inner">
+      <a class="logo" href="./index.html" aria-label="Orenda Home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span style="font-size:1.15rem">Orenda</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-link" href="./index.html">Home</a>
+        <a class="nav-link" href="./journal.html" aria-current="page">Journal</a>
+        <a class="nav-link" href="./history.html">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+
+      <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobilePanel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="container mobile-panel" id="mobilePanel" aria-label="Mobile navigation">
+      <nav class="mobile-links" aria-label="Mobile primary navigation">
+        <a class="nav-link" href="./index.html">Home</a>
+        <a class="nav-link" href="./journal.html" aria-current="page">Journal</a>
+        <a class="nav-link" href="./history.html">History</a>
+        <a class="nav-link" href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page" role="main">
+    <section class="section">
+      <div class="container">
+        <div class="page-title">
+          <div>
+            <h1 class="h2 reveal" style="font-size:2rem">Today\'s Journal</h1>
+            <p class="p reveal" style="margin-top:8px">
+              <span aria-label="Today date">✦ <span id="todayDate"></span></span>
+            </p>
+          </div>
+        </div>
+
+        <div class="card card-pad reveal" style="padding:22px">
+          <div style="display:grid;grid-template-columns:1fr;gap:18px">
+
+            <!-- Mood selector -->
+            <div>
+              <p class="label">How are you feeling right now?</p>
+              <div class="mood-row" role="group" aria-label="Mood selector">
+                <button type="button" class="mood-btn" data-mood="Happy" aria-pressed="false">😀 <span>Happy</span></button>
+                <button type="button" class="mood-btn" data-mood="Calm" aria-pressed="false">🙂 <span>Calm</span></button>
+                <button type="button" class="mood-btn" data-mood="Neutral" aria-pressed="false">😐 <span>Neutral</span></button>
+                <button type="button" class="mood-btn" data-mood="Sad" aria-pressed="false">😔 <span>Sad</span></button>
+                <button type="button" class="mood-btn" data-mood="Anxious" aria-pressed="false">😟 <span>Anxious</span></button>
+                <button type="button" class="mood-btn" data-mood="Frustrated" aria-pressed="false">😡 <span>Frustrated</span></button>
+              </div>
+            </div>
+
+            <!-- Prompt -->
+            <div>
+              <p class="label">Daily Prompt</p>
+              <div class="card prompt-box" style="box-shadow:none">
+                <div class="prompt-emoji" aria-hidden="true">🌿</div>
+                <div>
+                  <p style="margin:0;color:var(--text);font-weight:700" id="dailyPrompt">Loading prompt…</p>
+                  <p class="p" style="margin:6px 0 0">Write a few lines—or a lot. There is no right pace.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Journal textarea -->
+            <div>
+              <p class="label">Your journal entry</p>
+              <textarea id="journalText" class="textarea" aria-label="Journal entry textarea" placeholder="Let your thoughts arrive gently…"></textarea>
+              <div class="counter-row" aria-live="polite">
+                <span>Words: <strong id="wordCount">0</strong></span>
+                <span>Characters: <strong id="charCount">0</strong></span>
+              </div>
+
+              <p class="p" style="margin:12px 0 0;font-size:.95rem">
+                Your journal entry is sent securely to Claude to generate a reflection. Please avoid entering highly sensitive personal information.
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button id="reflectBtn" class="btn" type="button" aria-label="Reflect">Reflect</button>
+              <button id="clearBtn" class="btn btn-ghost" type="button" aria-label="Clear journal entry">Clear</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Reflection section (hidden by default) -->
+        <div id="reflectionWrap" class="hidden" style="margin-top:18px" aria-label="Reflection section">
+          <div id="reflectionArea" class="fade-expand">
+            <div class="page-title" style="margin-top:10px">
+              <div>
+                <h2 class="h2 reveal" style="font-size:1.7rem">Your Gentle Reflection</h2>
+                <p class="p reveal" id="reflectionSubtitle" style="margin-top:8px">Reflections appear here after you journal.</p>
+              </div>
+            </div>
+
+            <div class="reflection-grid" role="list" aria-label="Reflection cards">
+              <article class="card card-pad reveal" role="listitem" aria-label="Reflection summary">
+                <h3 style="margin:0;font-size:1.05rem">Summary</h3>
+                <p class="p" style="margin-top:10px" id="cardSummary">Lorem ipsum placeholder. Your thoughts are being held with care, and patterns are beginning to show.</p>
+              </article>
+
+
+              <article class="card card-pad reveal" role="listitem" aria-label="Emotions">
+                <h3 style="margin:0;font-size:1.05rem">Emotions</h3>
+                <div class="chips" aria-label="Emotion chips" id="cardEmotions">
+                  <span class="chip">Hopeful</span>
+                  <span class="chip">Curious</span>
+                  <span class="chip">Tired</span>
+                </div>
+
+              </article>
+
+              <article class="card card-pad reveal" role="listitem" aria-label="Reflection questions">
+                <h3 style="margin:0;font-size:1.05rem">Reflection Questions</h3>
+                <ol class="q" id="cardQuestions">
+                  <li>What do you need to hear right now—without judgment?</li>
+                  <li>What small choice could make today a little kinder?</li>
+                </ol>
+              </article>
+
+              <article class="card card-pad reveal" role="listitem" aria-label="Encouragement">
+                <h3 style="margin:0;font-size:1.05rem">Encouragement</h3>
+                <p class="p" style="margin-top:10px" id="cardEncouragement">
+                  You don\'t have to solve everything at once. Let your honesty be the first step—and your compassion the second.
+                </p>
+              </article>
+
+              <article class="card card-pad reveal" role="listitem" aria-label="Small goal">
+                <h3 style="margin:0;font-size:1.05rem">Small Goal</h3>
+                <p class="p" style="margin-top:10px" id="cardGoal">Take one slow breath, then write one sentence you\'re proud of.</p>
+              </article>
+
+
+              <article class="card card-pad reveal" role="listitem" aria-label="Today's bloom">
+                <h3 style="margin:0;font-size:1.05rem">Today\'s Bloom</h3>
+                <p class="p" style="margin-top:10px;font-weight:700;color:var(--primary)" id="cardBloom">“Softness is strength you can practice.”</p>
+              </article>
+
+            </div>
+
+            <div style="margin-top:16px" class="reveal">
+              <a class="btn btn-ghost" href="./history.html" role="button" aria-label="Go to history">View Journal History</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+      <div class="container footer-grid">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="logo-mark" aria-hidden="true" style="width:28px;height:28px;border-radius:10px"></span>
+          <strong style="color:var(--text)">Orenda</strong>
+        </div>
+        <div>
+          <span>Built with ❤️ using FastAPI and Claude AI</span>
+          <span aria-hidden="true"> · </span>
+          <a href="#" aria-label="GitHub link placeholder">GitHub</a>
+        </div>
+      </div>
+      <div class="container" style="margin-top:14px">© <span id="year"></span> Orenda. All rights reserved.</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="./script.js" defer></script>
+</body>
+</html>
+
