@@ -67,10 +67,16 @@
           if (entry.isIntersecting) entry.target.classList.add('is-visible');
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.01 }
     );
 
-    els.forEach((el) => io.observe(el));
+    els.forEach((el) => {
+      io.observe(el);
+      // Check if element is already visible
+      if (el.getBoundingClientRect().top < window.innerHeight) {
+        el.classList.add('is-visible');
+      }
+    });
   };
 
   // -------------------------
@@ -141,7 +147,7 @@
     'Where did you show kindness today?',
     'What felt heavy—and what helped it lighten?',
     'What do you want to remember from today?',
-    'What are you proud of (even if it's small)?',
+    'What are you proud of (even if it\'s small)?',
     'What lesson did today offer?',
     'What do you need more of right now?',
     'What boundary would support your peace?',
@@ -337,7 +343,7 @@
         summary: 'Your entry holds space for clarity without forcing meaning.',
         emotions: ['Balanced', 'Aware', 'Steady'],
         questions: ['What did you learn from neutrality?', 'What feels ready to change—gently?'],
-        encouragement: 'Neutral days are space for clarity. You don't have to force meaning—just allow it to appear.',
+        encouragement: 'Neutral days are space for clarity. You don\'t have to force meaning—just allow it to appear.',
         goal: 'Write one insight and one next step.',
         bloom: 'Clarity comes when you meet yourself honestly.'
       },
@@ -382,7 +388,7 @@
     if (summaryEl) {
       summaryEl.textContent = entry
         ? data.summary
-        : 'Select a mood and write a few lines when you're ready.';
+        : 'Select a mood and write a few lines when you\'re ready.';
     }
     renderEmotionChips(emotionsEl, data.emotions);
     renderQuestions(questionsEl, data.questions);
