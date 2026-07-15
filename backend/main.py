@@ -1,24 +1,22 @@
 from __future__ import annotations
 
 import os
-from datetime import date
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 
-from gemini import stream_reflection_text
+import crud
+from db import get_db, init_db
+from schemas import JournalEntryOut
 
-# Backend removed for frontend-only deployment.
-# (No API routes; this prevents Supabase/Claude/db initialization from running.)
-
-app = FastAPI(title="Orenda (frontend-only)")
+app = FastAPI(title="Orenda")
 
 
 _default_origins = "http://localhost,http://localhost:8000,http://127.0.0.1:8000,null,file://"
@@ -40,117 +38,32 @@ def on_startup() -> None:
 
 
 @app.get("/health")
-def health():
+def health() -> dict[str, bool]:
     return {"ok": True}
 
 
-@app.post("/api/reflect/stream")
-
-def reflect_stream(req: ReflectRequest, request: Request):
-    """Streams reflection cards
-
-    Frontend contract (plain-text structure):
-      SUMMARY:
-      EMOTIONS:
-      REFLECTION QUESTIONS:
-      ENCOURAGEMENT:
-      SMALL GOAL:
-      TODAY'S BLOOM:
-
-    We stream the entire plain-text output progressively.
-    """
-
-    # Set default date if not provided
-    entry_date = req.date or str(date.today())
-
-    def event_generator():
-        # SSE requires: lines like "data: ...\n\n"
-        # We'll stream plain text chunks.
-        full_text_accum: list[str] = []
-
-        # stream_reflection_text yields text chunks
-        for chunk in stream_reflection_text(req.mood, req.journal_text):
-            if await_request_aborted(request):
-                return
-
-            full_text_accum.append(chunk)
-            # Still send chunks as-is; frontend will parse.
-            yield f"data: {chunk}\n\n"
-
-        # Stream end marker (optional but helpful)
-        full_text = "".join(full_text_accum)
-        summary_text = extract_summary_from_plaintext(full_text)
-
-        # Save after stream completes
-        try:
-            save_journal_entry(
-                date_iso=entry_date,
-                mood=req.mood,
-                journal_text=req.journal_text,
-                ai_summary=summary_text,
-            )
-        except Exception:
-            # Persistence should not break streaming UX
-            pass
-
-        yield "data: [DONE]\n\n"
-
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+@app.get("/history", response_model=list[JournalEntryOut])
+def get_history(db: Session = Depends(get_db)) -> list[JournalEntryOut]:
+    """Return all journal entries, newest first."""
+    return crud.get_all_entries(db)
 
 
-def await_request_aborted(request: Request) -> bool:
-    # FastAPI Request has an is_disconnected() coroutine.
-    # We can't await inside sync generator; so we do a conservative check.
-    # The SSE generator will naturally stop when client closes.
-    return False
+@app.get("/entry/{entry_id}", response_model=JournalEntryOut)
+def get_entry(entry_id: int, db: Session = Depends(get_db)) -> JournalEntryOut:
+    """Return a single journal entry by id (404 if it does not exist)."""
+    entry = crud.get_entry(db, entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Journal entry not found")
+    return entry
 
 
-def extract_summary_from_plaintext(plain: str) -> str:
-
-    # Keep it simple and resilient.
-    # Prefer the SUMMARY: block.
-    marker = "SUMMARY:"
-    if marker not in plain:
-        return plain.strip()[:500]
-    after = plain.split(marker, 1)[1]
-
-    # Stop at next marker if present
-    next_markers = [
-        "EMOTIONS:",
-        "REFLECTION QUESTIONS:",
-        "ENCOURAGEMENT:",
-        "SMALL GOAL:",
-        "TODAY'S BLOOM:",
-    ]
-    end_idx = len(after)
-    for m in next_markers:
-        if m in after:
-            end_idx = min(end_idx, after.index(m))
-    return after[:end_idx].strip()[:1000]
-
-
-
-@app.get("/api/history")
-
-def history_api(q: str | None = None, mood: str | None = None):
-    """Return journal entries for the history page (Supabase-backed).
-
-    Query params:
-      - q: optional search string
-      - mood: one of Happy/Calm/Neutral/Sad/Anxious/Frustrated or All
-    """
-
-    items = list_journal_entries(q=q, mood=mood)
-    return {
-        "items": [
-            {
-                "date": x["date"],
-                "mood": x["mood"],
-                "summary": (x["ai_summary"] or "").strip(),
-            }
-            for x in items
-        ]
-    }
+@app.delete("/entry/{entry_id}")
+def delete_entry(entry_id: int, db: Session = Depends(get_db)) -> dict[str, bool]:
+    """Delete a journal entry by id (404 if it does not exist)."""
+    deleted = crud.delete_entry(db, entry_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Journal entry not found")
+    return {"ok": True}
 
 
 # Serve frontend when a sibling or bundled directory exists (local dev / single-container deploy).
