@@ -11,8 +11,8 @@ When the sibling `frontend/` directory is present, the app also serves the stati
 
 ## Environment
 Create `backend/.env`:
-- `ANTHROPIC_API_KEY` — Claude API key (omit or leave placeholder to use dev mock stream)
-- `ANTHROPIC_MODEL` — optional, defaults to `claude-3-5-sonnet-latest`
+- `GEMINI_API_KEY` — Gemini API key (omit or leave placeholder to use dev mock stream)
+- `GEMINI_MODEL` — optional, defaults to `gemini-2.0-flash`
 - `ORENDA_DB_PATH` — SQLite file path (legacy alias: `ORIENTA_DB_PATH`)
 - `CORS_ORIGINS` — comma-separated allowed origins (tighten for production)
 

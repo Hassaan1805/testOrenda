@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from claude import stream_reflection_text
+from gemini import stream_reflection_text
 
 # Backend removed for frontend-only deployment.
 # (No API routes; this prevents Supabase/Claude/db initialization from running.)
