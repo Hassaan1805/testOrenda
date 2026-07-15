@@ -4,10 +4,24 @@ import os
 import time
 from typing import Generator
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
 from prompts import SYSTEM_INSTRUCTIONS
+
+# Ensure GEMINI_API_KEY (and friends) are available when this module is imported
+# directly, independent of import order in the FastAPI app.
+load_dotenv()
+
+
+class GeminiError(RuntimeError):
+    """Raised when a Gemini request cannot be completed."""
+
+
+def _model_name() -> str:
+    """Return the configured Gemini Flash model (overridable via GEMINI_MODEL)."""
+    return os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
 
 def _has_api_key() -> bool:
@@ -18,8 +32,47 @@ def _has_api_key() -> bool:
 def _client() -> genai.Client:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise RuntimeError("Missing GEMINI_API_KEY in environment")
+        raise GeminiError("Missing GEMINI_API_KEY in environment")
     return genai.Client(api_key=api_key)
+
+
+def _reflection_config() -> types.GenerateContentConfig:
+    """Shared request config so streaming/non-streaming paths stay in sync."""
+    return types.GenerateContentConfig(
+        system_instruction=SYSTEM_INSTRUCTIONS,
+        max_output_tokens=600,
+    )
+
+
+def generate_reflection(journal_text: str) -> str:
+    """Generate a plain-text reflection for a journal entry (non-streaming).
+
+    Reads the system prompt from :mod:`prompts`, sends ``journal_text`` to
+    Gemini, and returns the model's plain-text response.
+
+    Raises:
+        GeminiError: if the API key is missing, the request fails, or the
+            model returns an empty response.
+    """
+    if not _has_api_key():
+        raise GeminiError("Missing GEMINI_API_KEY in environment")
+
+    client = _client()
+
+    try:
+        response = client.models.generate_content(
+            model=_model_name(),
+            contents=journal_text,
+            config=_reflection_config(),
+        )
+    except Exception as exc:  # SDK raises various provider-specific errors
+        raise GeminiError(f"Gemini API request failed: {exc}") from exc
+
+    text = response.text
+    if not text:
+        raise GeminiError("Gemini API returned an empty response")
+
+    return text
 
 
 def _mock_reflection_stream(mood: str, journal_text: str) -> Generator[str, None, None]:
@@ -73,12 +126,9 @@ def stream_reflection_text(mood: str, journal_text: str) -> Generator[str, None,
     )
 
     stream = client.models.generate_content_stream(
-        model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+        model=_model_name(),
         contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTIONS,
-            max_output_tokens=600,
-        ),
+        config=_reflection_config(),
     )
 
     for chunk in stream:
