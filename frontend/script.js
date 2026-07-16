@@ -179,6 +179,14 @@
 
     const wordEl = $('#wordCount');
     const charEl = $('#charCount');
+    const reflectBtn = $('#reflectBtn');
+
+    const updateReflectButtonState = () => {
+      if (!reflectBtn) return;
+      const text = textarea.value || '';
+      const isEmpty = !text.trim();
+      reflectBtn.disabled = isEmpty;
+    };
 
     const update = () => {
       const text = textarea.value || '';
@@ -187,6 +195,8 @@
 
       if (wordEl) wordEl.textContent = String(words);
       if (charEl) charEl.textContent = String(chars);
+      
+      updateReflectButtonState();
     };
 
     textarea.addEventListener('input', update);
@@ -511,6 +521,9 @@
         if (reflectionSubtitle) {
           reflectionSubtitle.textContent = 'Reflections appear here after you journal.';
         }
+        // Update Reflect button state after clearing
+        const reflectBtn = $('#reflectBtn');
+        if (reflectBtn) reflectBtn.disabled = true;
       });
     }
   };
@@ -549,20 +562,18 @@
       return;
     }
 
-    const fallbackNote = isFallback
-      ? '<p class="p" style="margin:0 0 10px;font-size:.9rem;color:var(--muted)">Showing sample entries while history is unavailable.</p>'
-      : '';
-
     grid.innerHTML = items
-      .map((x, i) => {
-        const summary = x.summary || '';
-        const firstLines = summary.slice(0, 90) + (summary.length > 90 ? '…' : '');
+      .map((x) => {
+        // Format date from created_at
+        const date = x.created_at ? new Date(x.created_at).toISOString().split('T')[0] : 'Unknown date';
+        const summary = x.summary || 'No summary available';
+        const journalText = x.journal_text || '';
+        const firstLines = journalText.slice(0, 90) + (journalText.length > 90 ? '…' : '');
 
         return `
           <article class="card card-pad card-hover" role="listitem" aria-label="Journal history entry">
-            ${i === 0 ? fallbackNote : ''}
             <div class="counter-row" style="margin-top:0">
-              <span><strong>${x.date}</strong></span>
+              <span><strong>${date}</strong></span>
               <span style="color:var(--primary)"><strong>${x.mood}</strong></span>
             </div>
             <p style="margin:12px 0 10px;color:var(--muted)">${firstLines}</p>
@@ -588,7 +599,7 @@
     if (!response.ok) throw new Error(`History API failed (${response.status})`);
 
     const data = await response.json();
-    return Array.isArray(data.items) ? data.items : [];
+    return Array.isArray(data) ? data : [];
   };
 
   const initHistory = () => {
@@ -619,8 +630,11 @@
         renderHistoryCards(grid, items, { isFallback: false });
       } catch {
         if (currentRequest !== requestId) return;
-        const filtered = filterHistoryItems(HISTORY_DUMMY, q, mood);
-        renderHistoryCards(grid, filtered, { isFallback: true });
+        grid.innerHTML = `
+          <article class="card card-pad" role="status" aria-live="polite">
+            <p class="p" style="margin:0">Failed to load journal history. Please try again.</p>
+          </article>
+        `;
       }
     };
 

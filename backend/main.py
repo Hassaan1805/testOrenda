@@ -8,13 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-
+from gemini import generate_reflection, stream_reflection_text
 import crud
 from db import get_db, init_db
-from schemas import JournalEntryOut
+from schemas import JournalEntryOut, ReflectRequest
 
 app = FastAPI(title="Orenda")
 
@@ -42,7 +43,7 @@ def health() -> dict[str, bool]:
     return {"ok": True}
 
 
-@app.get("/history", response_model=list[JournalEntryOut])
+@app.get("/api/history", response_model=list[JournalEntryOut])
 def get_history(db: Session = Depends(get_db)) -> list[JournalEntryOut]:
     """Return all journal entries, newest first."""
     return crud.get_all_entries(db)
@@ -64,6 +65,70 @@ def delete_entry(entry_id: int, db: Session = Depends(get_db)) -> dict[str, bool
     if not deleted:
         raise HTTPException(status_code=404, detail="Journal entry not found")
     return {"ok": True}
+
+
+@app.post("/api/reflect/stream")
+def reflect_stream(request: ReflectRequest, db: Session = Depends(get_db)):
+    """Stream reflection from Gemini based on mood and journal text, and save to database."""
+    REFLECTION_MARKERS = [
+        'SUMMARY:',
+        'EMOTIONS:',
+        'REFLECTION QUESTIONS:',
+        'ENCOURAGEMENT:',
+        'SMALL GOAL:',
+        "TODAY'S BLOOM:"
+    ]
+    
+    def generate_and_save():
+        """Generator that streams reflection and saves entry to database."""
+        full_text = ""
+        try:
+            for chunk in stream_reflection_text(request.mood, request.journal_text):
+                full_text += chunk
+                yield chunk
+        except Exception as e:
+            print(f"Error during reflection streaming: {e}")
+            # Still try to save even if streaming fails
+            pass
+        
+        # Parse reflection sections and save to database
+        sections = {}
+        try:
+            for i, marker in enumerate(REFLECTION_MARKERS):
+                next_markers = REFLECTION_MARKERS[i + 1:]
+                start_idx = full_text.find(marker)
+                if start_idx != -1:
+                    start_idx += len(marker)
+                    end_idx = len(full_text)
+                    for next_marker in next_markers:
+                        next_idx = full_text.find(next_marker, start_idx)
+                        if next_idx != -1:
+                            end_idx = min(end_idx, next_idx)
+                    sections[marker] = full_text[start_idx:end_idx].strip()
+        except Exception as e:
+            print(f"Error parsing reflection sections: {e}")
+        
+        # Save entry to database (even if reflection parsing fails)
+        try:
+            crud.create_entry(
+                db,
+                mood=request.mood,
+                journal_text=request.journal_text,
+                summary=sections.get("SUMMARY:"),
+                emotions=sections.get("EMOTIONS:"),
+                reflection_questions=sections.get("REFLECTION QUESTIONS:"),
+                encouragement=sections.get("ENCOURAGEMENT:"),
+                small_goal=sections.get("SMALL GOAL:"),
+                todays_bloom=sections.get("TODAY'S BLOOM:")
+            )
+            print(f"Successfully saved journal entry for mood: {request.mood}")
+        except Exception as e:
+            print(f"Error saving to database: {e}")
+    
+    return StreamingResponse(
+        generate_and_save(),
+        media_type="text/event-stream"
+    )
 
 
 # Serve frontend when a sibling or bundled directory exists (local dev / single-container deploy).

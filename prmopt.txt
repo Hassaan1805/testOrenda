@@ -189,7 +189,7 @@ Live character counter.
 
 Privacy notice below textarea:
 
-"Your journal entry is sent securely to Claude to generate a reflection. Please avoid entering highly sensitive personal information."
+"Your journal entry is sent securely to Gemini to generate a reflection. Please avoid entering highly sensitive personal information."
 
 Buttons:
 
@@ -371,7 +371,7 @@ Include:
 
 Orenda
 
-Built with ❤️ using FastAPI and Claude AI
+Built with ❤️ using FastAPI and Gemini AI
 
 GitHub placeholder link
 
