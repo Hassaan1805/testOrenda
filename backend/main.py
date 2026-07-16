@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,12 +10,14 @@ load_dotenv()
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 import crud
-from db import get_db, init_db
-from schemas import JournalEntryOut
+from db import SessionLocal, get_db, init_db
+from gemini import GeminiError, stream_reflection_text
+from schemas import JournalEntryOut, ReflectRequest
 
 app = FastAPI(title="Orenda")
 
@@ -40,6 +43,102 @@ def on_startup() -> None:
 @app.get("/health")
 def health() -> dict[str, bool]:
     return {"ok": True}
+
+
+_REFLECTION_MARKERS = [
+    "SUMMARY:",
+    "EMOTIONS:",
+    "REFLECTION QUESTIONS:",
+    "ENCOURAGEMENT:",
+    "SMALL GOAL:",
+    "TODAY'S BLOOM:",
+]
+
+
+def _parse_reflection_sections(text: str) -> dict[str, str]:
+    """Split the model's labeled plain-text output into its section values.
+
+    Mirrors the marker-based parser used by the frontend so persisted columns
+    match what the user sees.
+    """
+    sections: dict[str, str] = {}
+    for i, marker in enumerate(_REFLECTION_MARKERS):
+        idx = text.find(marker)
+        if idx == -1:
+            continue
+        start = idx + len(marker)
+        end = len(text)
+        for nxt in _REFLECTION_MARKERS[i + 1 :]:
+            nidx = text.find(nxt, start)
+            if nidx != -1:
+                end = min(end, nidx)
+        value = text[start:end].strip()
+        if value:
+            sections[marker] = value
+    return sections
+
+
+@app.post("/api/reflect/stream")
+def reflect_stream(req: ReflectRequest) -> StreamingResponse:
+    """Stream a plain-text reflection as SSE, then persist the journal entry.
+
+    Yields ``data: <chunk>`` events (newlines collapsed so each SSE frame stays
+    single-line), followed by a ``data: [DONE]`` sentinel. Falls back to the
+    built-in mock stream when no ``GEMINI_API_KEY`` is configured.
+    """
+
+    # Prime the stream so an auth/config failure surfaces as a normal HTTP error
+    # (before the streaming response starts), letting the frontend fall back to
+    # its placeholder reflection instead of rendering a broken stream.
+    stream = stream_reflection_text(req.mood, req.journal_text)
+    try:
+        first_chunk = next(stream, None)
+    except GeminiError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    def _sse(chunk: str) -> str:
+        return f"data: {chunk.replace(chr(13), '').replace(chr(10), ' ')}\n\n"
+
+    def event_stream() -> Iterator[str]:
+        chunks: list[str] = []
+        if first_chunk:
+            chunks.append(first_chunk)
+            yield _sse(first_chunk)
+        try:
+            for chunk in stream:
+                if not chunk:
+                    continue
+                chunks.append(chunk)
+                yield _sse(chunk)
+        except GeminiError as exc:
+            yield f"data: [ERROR] {exc}\n\n"
+            return
+
+        full_text = "".join(chunks)
+        sections = _parse_reflection_sections(full_text)
+
+        db = SessionLocal()
+        try:
+            crud.create_entry(
+                db,
+                mood=req.mood,
+                journal_text=req.journal_text,
+                summary=sections.get("SUMMARY:"),
+                emotions=sections.get("EMOTIONS:"),
+                reflection_questions=sections.get("REFLECTION QUESTIONS:"),
+                encouragement=sections.get("ENCOURAGEMENT:"),
+                small_goal=sections.get("SMALL GOAL:"),
+                todays_bloom=sections.get("TODAY'S BLOOM:"),
+            )
+        except Exception:
+            # Persistence must not break the streaming UX.
+            db.rollback()
+        finally:
+            db.close()
+
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
 @app.get("/history", response_model=list[JournalEntryOut])
