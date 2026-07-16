@@ -125,12 +125,15 @@ def stream_reflection_text(mood: str, journal_text: str) -> Generator[str, None,
         "Now produce the reflection in the required plain-text labeled format."
     )
 
-    stream = client.models.generate_content_stream(
-        model=_model_name(),
-        contents=user_prompt,
-        config=_reflection_config(),
-    )
+    try:
+        stream = client.models.generate_content_stream(
+            model=_model_name(),
+            contents=user_prompt,
+            config=_reflection_config(),
+        )
 
-    for chunk in stream:
-        if chunk.text:
-            yield chunk.text
+        for chunk in stream:
+            if chunk.text:
+                yield chunk.text
+    except Exception as exc:  # SDK raises various provider-specific errors
+        raise GeminiError(f"Gemini API request failed: {exc}") from exc
